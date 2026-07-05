@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Generate a secure password</title>
+</head>
+<body>
+  <h1>Result</h1>
+  <div id="out">Loading...</div>
+
+  <script>
+    fetch("output.json")
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById("out").innerHTML =
+          "Base64: " + d.base64 + "<br>" +
+          "RIPEMD-128: " + d.ripemd128;
+      });
+  </script>
+</body>
+</html>
