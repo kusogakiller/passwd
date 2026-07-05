@@ -1,31 +1,36 @@
 mod core;
 
-use clap::Parser;
+use std::env;
 use std::fs::File;
 use std::io::Write;
 
-#[derive(Parser)]
-struct Cli {
-    size: String,
-
-    mode: Option<String>,
-}
-
 fn main() {
-    let cli = Cli::parse();
+    let args: Vec<String> = env::args().collect();
 
-    if cli.size == "version" {
+    if args.len() < 2 {
+        eprintln!("Error: missing arguments");
+        std::process::exit(1);
+    }
+
+    if args[1] == "version" {
         println!("rustcrypt 0.1.0");
         println!("Safe, Fast, Cryptographic.");
         return;
     }
 
-    let size: usize = cli.size.parse().unwrap_or(32);
+    let size: usize = match args[1].parse() {
+        Ok(v) => v,
+        Err(_) => {
+            eprintln!("Error: size must be a i32");
+            std::process::exit(1);
+        }
+    };
+
+    let format = args.get(2).map(|s| s.as_str());
+
     let output = core::generate(size);
 
-    let mode = cli.mode.unwrap_or_else(|| "text".to_string());
-
-    if mode == "json" {
+    if format == Some("json") {
         let json = serde_json::json!({
             "output": output,
             "length": size
@@ -36,6 +41,7 @@ fn main() {
 
         println!("{}", json);
     } else {
-        println!("{}", output);
+        println!("size: {}", size);
+        println!("output: {}", output);
     }
 }
