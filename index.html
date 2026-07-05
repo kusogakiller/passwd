@@ -2,20 +2,61 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Generate a secure password</title>
+  <title>Generate</title>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    code {
+      display: block;
+      padding: 8px;
+      background: #f4f4f4;
+      word-break: break-all;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Result</h1>
-  <div id="out">Loading...</div>
+
+  <h1>Rust Password Generator</h1>
+
+  <h3>Secure entropy-based password generation in Rust</h3>
+
+  <button onclick="load()">Generate!</button>
+
+  <hr>
+
+  <div id="out">Click button</div>
 
   <script>
-    fetch("output.json")
-      .then(r => r.json())
-      .then(d => {
-        document.getElementById("out").innerHTML =
-          "Base64: " + d.base64 + "<br>" +
-          "RIPEMD-128: " + d.ripemd128;
-      });
+    function load() {
+      document.getElementById("out").innerHTML = "Generating...";
+
+      fetch("output.json?ts=" + Date.now())
+        .then(r => r.json())
+        .then(d => {
+          document.getElementById("out").innerHTML = `
+            <h3>Generated Result</h3>
+
+            <p><b>Base64</b></p>
+            <code>${d.base64}</code>
+
+            <p><b>RIPEMD-128</b></p>
+            <code>${d.ripemd128}</code>
+          `;
+        });
+    }
   </script>
+
 </body>
 </html>
