@@ -1,41 +1,58 @@
+use clap::{Parser, Subcommand};
 use rand::RngCore;
 use sha2::{Sha256, Digest};
-use base64::{engine::general_purpose, Engine as _};
-use ripemd::Ripemd128;
-use std::fs::File;
-use std::io::Write;
+use blake3;
+use hex;
+
+#[derive(Parser)]
+#[command(name = "rustcrypt")]
+#[command(version = "0.1.0")]
+#[command(about = "Safe. Fast. Cryptographic.")]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Generate {
+        size: usize,
+    },
+
+    Version,
+}
 
 fn main() {
-    let mut raw = [0u8; 256];
-    rand::thread_rng().fill_bytes(&mut raw);
+    let cli = Cli::parse();
 
-    let mut hasher = Sha256::new();
+    match cli.command {
+        Commands::Generate { size } => {
+            match size {
+                32 => {
+                    let mut buf = [0u8; 16];
+                    rand::thread_rng().fill_bytes(&mut buf);
+                
+                    let out = blake3::hash(&buf).as_bytes()[..16].to_vec();
+                
+                    println!("{}", hex::encode(out));
+                }
 
-    hasher.update(&raw);
-    let first = hasher.finalize_reset();
+                64 => {
+                    let mut buf = [0u8; 32];
+                    rand::thread_rng().fill_bytes(&mut buf);
 
-    hasher.update(first);
-    let second = hasher.finalize();
+                    let hash = Sha256::digest(&buf);
+                    println!("{}", hex::encode(hash));
+                }
 
-    let b64 = general_purpose::STANDARD.encode(second);
+                _ => {
+                    eprintln!("Invalid size. Use 32 or 64.");
+                }
+            }
+        }
 
-    let mut ripemd = Ripemd128::new();
-    ripemd.update(b64.as_bytes());
-    let result = ripemd.finalize();
-
-    let hex = result
-        .iter()
-        .map(|b| format!("{:02x}", b))
-        .collect::<String>();
-
-    let mut file = File::create("output.json").unwrap();
-
-    write!(
-        file,
-        r#"{{
-  "base64": "{}",
-  "ripemd128": "{}"
-}}"#,
-        b64, hex
-    ).unwrap();
+        Commands::Version => {
+            println!("rustcrypt 0.1.0");
+        }
+    }
 }
