@@ -24,7 +24,7 @@ body{
 }
 
 .container{
-  max-width:800px;
+  max-width:820px;
   margin:0 auto;
   padding:60px 20px;
 }
@@ -36,7 +36,7 @@ h1{
 
 .subtitle{
   color:var(--muted);
-  margin-bottom:30px;
+  margin-bottom:28px;
 }
 
 .card{
@@ -51,7 +51,7 @@ h1{
   gap:10px;
   align-items:center;
   flex-wrap:wrap;
-  margin-bottom:15px;
+  margin-bottom:14px;
 }
 
 button{
@@ -72,18 +72,19 @@ small{
   color:var(--muted);
 }
 
+.label{
+  font-size:12px;
+  color:var(--muted);
+  margin:14px 0 6px;
+}
+
 pre{
   background:#f9fafb;
   border:1px solid var(--border);
   padding:12px;
   border-radius:8px;
   overflow:auto;
-}
-
-.label{
-  font-size:12px;
-  color:var(--muted);
-  margin:12px 0 6px;
+  font-size:13px;
 }
 
 footer{
@@ -99,24 +100,17 @@ footer{
 <div class="container">
 
 <h1>RustCrypt</h1>
-<div class="subtitle">Secure entropy-based password generation in Rust.</div>
+<div class="subtitle">RustCrypt is a simple CLI tool that generates fixed-length hexadecimal strings from random data using BLAKE3 hashing.</div>
+<div class="subtitle">Built with Rust for safety, speed, and cryptographic security.</div>
 
-<div class="card">
-
-  <div class="row">
-    <button onclick="load()">Refresh</button>
-    <button class="secondary" onclick="clearOut()">Clear</button>
-    <small id="status">Idle</small>
-  </div>
-
-  <div id="out">
-    <small>Generate data using: rustcrypt generate 32 / 64</small>
-  </div>
-
+<div class="row">
+  <button onclick="load()">Refresh</button>
+  <button class="secondary" onclick="clearOut()">Clear</button>
+  <small id="status">Idle</small>
 </div>
 
 <footer>
-Safe. Fast. Cryptographic.
+Safe, Fast, Cryptographic.
 </footer>
 
 </div>
@@ -127,26 +121,30 @@ function setStatus(t){
 }
 
 function clearOut(){
-  document.getElementById("out").innerHTML = "<small>Cleared</small>";
+  document.getElementById("out").innerHTML =
+    "<small>Cleared</small>";
 }
 
 function load(){
   setStatus("Loading...");
-  document.getElementById("out").innerHTML = "<small>Reading output.json...</small>";
+  document.getElementById("out").innerHTML =
+    "<small>Reading output.json...</small>";
 
   fetch("output.json?ts=" + Date.now())
     .then(r => r.json())
     .then(d => {
       setStatus("Done");
 
+      const output = d.output ?? "";
+
       document.getElementById("out").innerHTML = `
         <div>
 
-          <div class="label">SHA-256 (Lower HEX)</div>
-          <pre>${d.sha256 ?? d.base64 ?? ""}</pre>
+          <div class="label">Output</div>
+          <pre>${output}</pre>
 
-          <div class="label">BLAKE3 (Lower HEX)</div>
-          <pre>${d.ripemd128 ?? ""}</pre>
+          <div class="label">Length</div>
+          <pre>${d.length ?? ""}</pre>
 
         </div>
       `;
