@@ -18,7 +18,7 @@
 
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
   background:var(--bg);
   color:var(--text);
 }
@@ -30,36 +30,34 @@ body{
 }
 
 h1{
-  margin:0 0 6px;
+  margin:0 0 14px;
   font-size:38px;
 }
 
 .subtitle{
   color:var(--muted);
-  margin-bottom:28px;
-}
-
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:20px;
+  margin-bottom:24px;
+  line-height:1.6;
 }
 
 .row{
   display:flex;
-  gap:10px;
+  gap:12px;
   align-items:center;
   flex-wrap:wrap;
   margin-bottom:14px;
 }
 
-button{
-  border:1px solid var(--border);
-  background:#111827;
-  color:white;
+select, button{
   padding:10px 14px;
   border-radius:8px;
+  border:1px solid var(--border);
+  font-size:14px;
+}
+
+button{
+  background:#111827;
+  color:white;
   cursor:pointer;
 }
 
@@ -68,14 +66,18 @@ button.secondary{
   color:#111827;
 }
 
-small{
-  color:var(--muted);
+.card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  margin-top:16px;
 }
 
 .label{
   font-size:12px;
   color:var(--muted);
-  margin:14px 0 6px;
+  margin:10px 0 6px;
 }
 
 pre{
@@ -84,24 +86,10 @@ pre{
   padding:12px;
   border-radius:8px;
   overflow:auto;
-  font-size:13px;
 }
 
-footer{
-  margin-top:30px;
-  font-size:12px;
+small{
   color:var(--muted);
-}
-
-h1 {
-  margin: 0 0 14px;
-  font-size: 38px;
-}
-
-.subtitle {
-  color: var(--muted);
-  margin-bottom: 28px;
-  line-height: 1.6;
 }
 </style>
 </head>
@@ -113,28 +101,33 @@ h1 {
 <h1>RustCrypt</h1>
 
 <div class="subtitle">
-Generate fixed-length hashes from CLI output (BLAKE3-based).<br>
-Built with Rust for safety, speed, and cryptographic security.
+RustCrypt is a CLI tool that generate fixed-length cryptographic strings using BLAKE3 XOF.<br>
+Fully running in WebAssembly.
 </div>
 
 <div class="row">
-  <button onclick="generate(32)">Generate 32-characters hash</button>
-  <button onclick="generate(64)">Generate 64-characters hash</button>
+  <select id="size">
+    <option value="32">32-characters</option>
+    <option value="64">64-characters</option>
+  </select>
+
+  <button onclick="generate()">Generate!</button>
   <button class="secondary" onclick="clearOut()">Clear</button>
+
   <small id="status">Idle</small>
 </div>
 
-<div id="out" class="card" style="margin-top:16px;">
-  <small>Select 32 or 64</small>
+<div id="out" class="card">
+  <small>Select size and generate</small>
 </div>
-
-<footer>
-Safe, Fast, Cryptographic.
-</footer>
 
 </div>
 
-<script>
+<script type="module">
+import init, { generate as rust_generate } from "./pkg/rustcrypt.js";
+
+await init();
+
 function setStatus(t){
   document.getElementById("status").innerText = t;
 }
@@ -144,35 +137,36 @@ function clearOut(){
     "<small>Cleared</small>";
 }
 
-function generate(size){
-  setStatus("Generating " + size + "...");
+function generate(){
+  const size = parseInt(document.getElementById("size").value);
 
-  document.getElementById("out").innerHTML =
-    "<small>Loading output.json...</small>";
+  setStatus("Generating...");
 
-  fetch("output.json?size=" + size + "&ts=" + Date.now())
-    .then(r => r.json())
-    .then(d => {
-      setStatus("Done");
+  try {
+    const out = rust_generate(size);
 
-      document.getElementById("out").innerHTML = `
-        <div>
+    document.getElementById("out").innerHTML = `
+      <div>
+        <div class="label">Output</div>
+        <pre>${out}</pre>
 
-          <div class="label">Generated Output</div>
-          <pre>${d.output ?? ""}</pre>
+        <div class="label">Length</div>
+        <pre>${size}</pre>
+      </div>
+    `;
 
-          <div class="label">Length</div>
-          <pre>${d.length ?? ""}</pre>
-
-        </div>
-      `;
-    })
-    .catch(() => {
-      setStatus("Error");
-      document.getElementById("out").innerHTML =
-        "<small>output.json not found. Run CLI first.</small>";
-    });
+    setStatus("Done");
+  } catch (e) {
+    console.error(e);
+    setStatus("Error");
+    document.getElementById("out").innerHTML =
+      "<small>WASM execution failed</small>";
+  }
 }
+
+window.generate = generate;
+window.clearOut = clearOut;
+
 </script>
 
 </body>
