@@ -29,11 +29,20 @@ Safe. Fast. Cryptographic.
 Generate a cryptographic output from high-entropy randomness.
 
 ```bash
-# 32-byte output
+### 32-byte output
 rustcrypt generate 32
 
-# 64-byte output
+#### Example Output
+5ee56aa15401224d21694ae4740e1e8e
+
+### 64-byte output
 rustcrypt generate 64
 
-# version info
+#### Example Output
+b655bd72b3ab161417ea672f833c5eb53245f471033b9adee3e0e1934702a0e6
+
+### version info
 rustcrypt version
+
+#### Example Output
+rustcrypt 0.1.0
