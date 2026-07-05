@@ -30,6 +30,8 @@ RustCrypt provides a simple CLI for generating cryptographic outputs based on hi
 
 ---
 
+---
+
 ### Generate output
 
 You can generate a 32-byte or 64-byte cryptographic hash.
@@ -39,25 +41,13 @@ You can generate a 32-byte or 64-byte cryptographic hash.
 rustcrypt generate 32
 
 Example:
-
 5ee56aa15401224d21694ae4740e1e8e
-64-byte output
+```
+---
+#### 64-byte output
+```bash
 rustcrypt generate 64
 
 Example:
-
 b655bd72b3ab161417ea672f833c5eb53245f471033b9adee3e0e1934702a0e6
-Version
-
-Check the installed version:
-
-rustcrypt version
-
-Example:
-
-rustcrypt 0.1.0
-Help
-
-Show available commands:
-
-rustcrypt help
+```
