@@ -16,7 +16,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - run: cargo run version
+      - run: cargo run -- version
 
       - run: |
           mkdir public
