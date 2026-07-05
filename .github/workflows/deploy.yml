@@ -6,36 +6,32 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build output (RustCrypt)
+      - name: Build output
         run: cargo run -- 64 json
 
-      - name: Prepare site directory
+      - name: Prepare dist
         run: |
           rm -rf dist
           mkdir dist
           cp index.html dist/
           cp output.json dist/ || true
+          cp -r pkg dist/ || true
 
-      - name: Verify build output
-        run: |
-          echo "=== dist contents ==="
-          ls -R dist
+      - name: Debug
+        run: ls -R dist
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
