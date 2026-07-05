@@ -1,10 +1,11 @@
 [package]
-name = "passwd"
-version = "0.1.0"
+name = "rustcrypt"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
+clap = { version = "4", features = ["derive"] }
 rand = "0.8"
 sha2 = "0.10"
-base64 = "0.22"
-ripemd = "0.1"
+blake3 = "1.5"
+hex = "0.4"
