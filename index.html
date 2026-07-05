@@ -132,7 +132,7 @@ function clearOut(){
 function load(){
   setStatus("Loading...");
   document.getElementById("out").innerHTML =
-    "<small>Reading output.json...</small>";
+    "<small>Loading output.json...</small>";
 
   fetch("output.json?ts=" + Date.now())
     .then(r => r.json())
@@ -140,15 +140,16 @@ function load(){
       setStatus("Done");
 
       const output = d.output ?? "";
+      const length = d.length ?? "";
 
       document.getElementById("out").innerHTML = `
         <div>
 
-          <div class="label">Output</div>
+          <div class="label">Generated Output</div>
           <pre>${output}</pre>
 
           <div class="label">Length</div>
-          <pre>${d.length ?? ""}</pre>
+          <pre>${length}</pre>
 
         </div>
       `;
