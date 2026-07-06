@@ -3,7 +3,7 @@
 <head>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -128,6 +128,12 @@ footer{
     color:var(--muted);
     font-size:13px;
 }
+
+.hash{
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+}
 </style>
 </head>
 
@@ -200,7 +206,7 @@ generateBtn.onclick = () => {
     <button id="copy">Copy</button>
 </div>
 
-<pre id="result">${value}</pre>
+<pre id="result" class="hash">${value}</pre>
 
 <div style="margin-top:10px;">
     <small>Length: ${size}</small>
