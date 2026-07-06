@@ -17,7 +17,13 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build release
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
+
+      - name: Build WASM
+        run: wasm-pack build --target web
+
+      - name: Build release (CLI)
         run: cargo build --release
 
       - name: Generate output
@@ -27,9 +33,9 @@ jobs:
         run: |
           rm -rf dist
           mkdir dist
-          cp index.html dist/
+          cp ./index.html dist/
           cp output.json dist/ || true
-          cp -r pkg dist/ || true
+          cp -r pkg dist/
 
       - name: Debug
         run: ls -R dist
