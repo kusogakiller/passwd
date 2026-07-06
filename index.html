@@ -31,14 +31,22 @@ body{
 }
 
 h1{
-    margin:0 0 16px;
+    margin:0 0 10px;
     font-size:40px;
 }
 
 .subtitle{
     color:var(--muted);
-    line-height:1.7;
-    margin-bottom:28px;
+    line-height:1.8;
+    margin-bottom:30px;
+}
+
+.section-title{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin:18px 0 10px;
 }
 
 .controls{
@@ -46,6 +54,11 @@ h1{
     gap:12px;
     flex-wrap:wrap;
     align-items:center;
+    padding:14px;
+    background:white;
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.04);
 }
 
 select,
@@ -60,11 +73,21 @@ button{
     background:#111827;
     color:white;
     cursor:pointer;
+    transition:.15s;
+}
+
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
 }
 
 button.secondary{
-    background:white;
+    background:transparent;
     color:#111827;
+}
+
+button:hover:not(:disabled){
+    transform:translateY(-1px);
 }
 
 .card{
@@ -72,14 +95,15 @@ button.secondary{
     background:white;
     border:1px solid var(--border);
     border-radius:12px;
-    padding:20px;
+    padding:18px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.04);
 }
 
-.label{
-    margin-top:14px;
-    margin-bottom:6px;
-    color:var(--muted);
-    font-size:12px;
+.output-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
 }
 
 pre{
@@ -112,32 +136,31 @@ footer{
 
 <div class="subtitle">
 Generate fixed-length cryptographic strings using BLAKE3 XOF.<br>
-Powered by Rust and WebAssembly.
+Powered by Rust + WebAssembly.
 </div>
+
+<div class="section-title">Configuration</div>
 
 <div class="controls">
+    <select id="size">
+        <option value="32">32 characters</option>
+        <option value="64">64 characters</option>
+    </select>
 
-<select id="size">
-    <option value="32">32 characters</option>
-    <option value="64">64 characters</option>
-</select>
+    <button id="generate">Generate</button>
+    <button class="secondary" id="clear">Clear</button>
 
-<button id="generate">Generate!</button>
-
-<button class="secondary" id="clear">
-    Clear
-</button>
-
-<small id="status">Ready</small>
-
+    <small id="status">Ready</small>
 </div>
 
+<div class="section-title">Output</div>
+
 <div class="card" id="output">
-<small>Select a length and click Generate.</small>
+    <small>No output yet.</small>
 </div>
 
 <footer>
-Safe, Fast, Cryptographic.
+Safe · Fast · Deterministic cryptographic string generator
 </footer>
 
 </div>
@@ -148,48 +171,61 @@ import init, { generate } from "./pkg/rustcrypt.js";
 const status = document.getElementById("status");
 const output = document.getElementById("output");
 
+const generateBtn = document.getElementById("generate");
+const clearBtn = document.getElementById("clear");
+
 await init();
 
-document.getElementById("generate").onclick = () => {
+function setLoading(isLoading){
+    generateBtn.disabled = isLoading;
+    generateBtn.textContent = isLoading ? "Generating..." : "Generate";
+    status.textContent = isLoading ? "Working..." : "Ready";
+}
+
+generateBtn.onclick = () => {
 
     const size = Number(document.getElementById("size").value);
 
-    status.textContent = "Generating...";
+    setLoading(true);
 
     try{
-
         const value = generate(size);
 
         output.innerHTML = `
-<div class="label">Output</div>
-<pre>${value}</pre>
+<div class="output-header">
+    <small>Generated String</small>
+    <button id="copy">Copy</button>
+</div>
 
-<div class="label">Length</div>
-<pre>${size}</pre>
+<pre id="result">${value}</pre>
+
+<div style="margin-top:10px;">
+    <small>Length: ${size}</small>
+</div>
 `;
+
+        document.getElementById("copy").onclick = async () => {
+            await navigator.clipboard.writeText(value);
+            status.textContent = "Copied!";
+            setTimeout(() => status.textContent = "Ready", 1200);
+        };
 
         status.textContent = "Done";
 
     }catch(err){
-
         console.error(err);
-
         status.textContent = "Error";
-
-        output.innerHTML =
-            "<small>Failed to execute WebAssembly.</small>";
+        output.innerHTML = "<small>Failed to execute WebAssembly.</small>";
+    }finally{
+        setLoading(false);
     }
-
 };
 
-document.getElementById("clear").onclick = () => {
-
-    output.innerHTML =
-        "<small>Cleared.</small>";
-
+clearBtn.onclick = () => {
+    output.innerHTML = "<small>No output yet.</small>";
     status.textContent = "Ready";
-
 };
+
 </script>
 
 </body>
